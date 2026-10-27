@@ -510,7 +510,7 @@ const DEFAULT_SOURCES = [
   {
     id: 'custom',
     name: '고객설정 타이머 (Custom Preset)',
-    sub: '사용자 맞춤 시간 설정 • 1시간~최대 100시간 자유 조절 및 정밀 수신',
+    sub: '시간 • 분 단위 맞춤 설정 • 최대 100시간 정밀 조절 및 수신',
     icon: '⏱️',
     color: '#ffb703',
     glow: 'rgba(255, 183, 3, 0.45)',
@@ -521,15 +521,15 @@ const DEFAULT_SOURCES = [
     totalSupplied: 36000,
     isContinuous: false,
     unit: 'hours',
-    minVal: 1,
+    minVal: 0.1,
     maxVal: 100,
-    stepVal: 1,
+    stepVal: 0.1,
     quickDeltas: [
       { label: '-1시간', sec: -3600 },
       { label: '+1시간', sec: 3600 },
-      { label: '+5시간', sec: 18000 },
-      { label: '+10시간', sec: 36000 },
-      { label: '+24시간', sec: 86400 }
+      { label: '-10분', sec: -600 },
+      { label: '+10분', sec: 600 },
+      { label: '+30분', sec: 1800 }
     ]
   }
 ];
@@ -791,6 +791,15 @@ function renderTimerUI() {
             rangeInput.value = Math.ceil(src.remainingSeconds / 60);
           }
         }
+
+        if (src.id === 'custom') {
+          const inputH = document.getElementById('customInputH');
+          const inputM = document.getElementById('customInputM');
+          if (inputH && inputM && document.activeElement !== inputH && document.activeElement !== inputM) {
+            inputH.value = Math.floor(src.remainingSeconds / 3600);
+            inputM.value = Math.floor((src.remainingSeconds % 3600) / 60);
+          }
+        }
       }
 
       const toggleInput = card.querySelector('.toggle-switch input');
@@ -981,6 +990,30 @@ function initSourcesCards() {
       <button class="adj-btn" onclick="adjustSourceTime('${src.id}', ${btn.sec})">${btn.label}</button>
     `).join('');
 
+    let customSettingHtml = '';
+    if (src.id === 'custom') {
+      const curH = Math.floor(src.remainingSeconds / 3600);
+      const curM = Math.floor((src.remainingSeconds % 3600) / 60);
+      customSettingHtml = `
+        <div class="custom-hm-setting-box" style="display:flex; align-items:center; justify-content:space-between; background:rgba(255,183,3,0.1); border:1px solid rgba(255,183,3,0.35); border-radius:10px; padding:8px 12px; margin:8px 0 6px;">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span style="font-size:0.75rem; font-weight:700; color:#ffb703;">⏱️ 타이머 설정:</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <div style="display:flex; align-items:center; gap:3px;">
+              <input type="number" id="customInputH" min="0" max="100" value="${curH}" oninput="onCustomHMChange()" onchange="onCustomHMChange()" style="width:48px; background:#0b1026; border:1px solid #ffb703; border-radius:6px; color:#ffffff; font-family:var(--font-mono); font-size:0.95rem; font-weight:700; text-align:center; padding:3px 2px; outline:none;">
+              <span style="font-size:0.75rem; color:#e2e8f0; font-weight:600;">시간</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:3px;">
+              <input type="number" id="customInputM" min="0" max="59" value="${curM}" oninput="onCustomHMChange()" onchange="onCustomHMChange()" style="width:44px; background:#0b1026; border:1px solid #ffb703; border-radius:6px; color:#ffffff; font-family:var(--font-mono); font-size:0.95rem; font-weight:700; text-align:center; padding:3px 2px; outline:none;">
+              <span style="font-size:0.75rem; color:#e2e8f0; font-weight:600;">분</span>
+            </div>
+            <button class="adj-btn" onclick="applyCustomHMDirect()" style="border-color:#ffb703; color:#ffb703; font-weight:700; padding:3px 8px; font-size:0.72rem;">설정</button>
+          </div>
+        </div>
+      `;
+    }
+
     return `
       <div id="source-card-${src.id}" class="source-card" style="--card-accent: ${src.color}; --card-glow: ${src.glow};">
         <div class="source-header-row">
@@ -996,6 +1029,8 @@ function initSourcesCards() {
             <span class="slider-knob"></span>
           </label>
         </div>
+
+        ${customSettingHtml}
 
         <div class="timer-slider-row">
           <input type="range" class="time-range-input" data-id="${src.id}" min="${src.minVal}" max="${src.maxVal}" step="${src.stepVal}" value="${sliderValue}">
@@ -1077,6 +1112,14 @@ function setSourceValue(id, val) {
     src.remainingSeconds = Math.round(val * 60);
     src.initialMinutes = Math.round(val);
   }
+  if (id === 'custom') {
+    const inputH = document.getElementById('customInputH');
+    const inputM = document.getElementById('customInputM');
+    if (inputH && inputM) {
+      inputH.value = Math.floor(src.remainingSeconds / 3600);
+      inputM.value = Math.floor((src.remainingSeconds % 3600) / 60);
+    }
+  }
   renderTimerUI();
 }
 
@@ -1084,33 +1127,100 @@ function adjustSourceTime(id, secondsDelta) {
   sounds.playTap();
   const src = state.sources.find(s => s.id === id);
   if (!src) return;
-  src.remainingSeconds = Math.max(0, src.remainingSeconds + secondsDelta);
+  src.remainingSeconds = Math.max(0, Math.min(100 * 3600, src.remainingSeconds + secondsDelta));
+  if (id === 'custom') {
+    const inputH = document.getElementById('customInputH');
+    const inputM = document.getElementById('customInputM');
+    if (inputH && inputM) {
+      inputH.value = Math.floor(src.remainingSeconds / 3600);
+      inputM.value = Math.floor((src.remainingSeconds % 3600) / 60);
+    }
+  }
   renderTimerUI();
+}
+
+function onCustomHMChange() {
+  const inputH = document.getElementById('customInputH');
+  const inputM = document.getElementById('customInputM');
+  const src = state.sources.find(s => s.id === 'custom');
+  if (!src || !inputH || !inputM) return;
+
+  let h = parseInt(inputH.value, 10);
+  let m = parseInt(inputM.value, 10);
+  if (isNaN(h) || h < 0) h = 0;
+  if (h > 100) { h = 100; inputH.value = 100; }
+  if (isNaN(m) || m < 0) m = 0;
+  if (m > 59) { m = 59; inputM.value = 59; }
+  if (h === 100) { m = 0; inputM.value = 0; } // 최대 100시간
+
+  const totalSec = (h * 3600) + (m * 60);
+  src.remainingSeconds = totalSec;
+  src.initialMinutes = (h * 60) + m;
+
+  renderTimerUI();
+
+  // 슬라이더 바 위치 동기화
+  const card = document.getElementById('source-card-custom');
+  if (card) {
+    const rangeInput = card.querySelector('.time-range-input');
+    if (rangeInput) {
+      rangeInput.value = (totalSec / 3600).toFixed(1);
+    }
+  }
+}
+
+function applyCustomHMDirect() {
+  sounds.playTap();
+  onCustomHMChange();
+  sounds.playComplete();
 }
 
 function promptCustomMinutes(id) {
   sounds.playTap();
   const src = state.sources.find(s => s.id === id);
   if (!src) return;
-  const currentHours = (src.remainingSeconds / 3600).toFixed(1).replace(/\.0$/, '');
-  const input = prompt(`⏱️ [고객설정 타이머 시간 직접 설정]\n원하시는 시간을 '시간(Hour)' 단위로 입력하세요 (1 ~ 최대 100시간):\n(예: 1, 2.5, 10, 24, 48, 72, 100)`, currentHours);
+  const curH = Math.floor(src.remainingSeconds / 3600);
+  const curM = Math.floor((src.remainingSeconds % 3600) / 60);
+  const input = prompt(`⏱️ [고객설정 타이머 시간/분 직접 설정]\n설정할 시간과 분을 입력하세요.\n(예: '2시간 30분' 또는 '2 30', '10'은 10시간):`, `${curH}시간 ${curM}분`);
   if (input !== null && input.trim() !== '') {
-    const num = parseFloat(input.trim());
-    if (!isNaN(num) && num > 0 && num <= 100) {
-      src.remainingSeconds = Math.round(num * 3600);
-      src.initialMinutes = Math.round(num * 60);
-      renderTimerUI();
-      const card = document.getElementById(`source-card-${src.id}`);
-      if (card) {
-        const rangeInput = card.querySelector('.time-range-input');
-        if (rangeInput) {
-          rangeInput.value = num;
-        }
-      }
-      sounds.playComplete();
+    const cleaned = input.trim().replace(/시간/g, ' ').replace(/분/g, '').trim();
+    const parts = cleaned.split(/\s+/);
+    let h = 0;
+    let m = 0;
+    if (parts.length >= 2) {
+      h = parseFloat(parts[0]) || 0;
+      m = parseFloat(parts[1]) || 0;
     } else {
-      alert('⚠️ 1부터 100 사이의 올바른 시간(숫자)을 입력해 주세요.\n(예: 10, 24, 72, 100)');
+      const val = parseFloat(parts[0]);
+      if (!isNaN(val)) {
+        h = Math.floor(val);
+        m = Math.round((val - h) * 60);
+      }
     }
+    if (h < 0) h = 0;
+    if (h > 100) h = 100;
+    if (m < 0) m = 0;
+    if (m > 59) m = 59;
+    if (h === 100) m = 0;
+
+    const totalSec = (h * 3600) + (m * 60);
+    src.remainingSeconds = totalSec;
+    src.initialMinutes = (h * 60) + m;
+
+    const inputH = document.getElementById('customInputH');
+    const inputM = document.getElementById('customInputM');
+    if (inputH && inputM) {
+      inputH.value = h;
+      inputM.value = m;
+    }
+
+    renderTimerUI();
+    const card = document.getElementById(`source-card-${src.id}`);
+    if (card) {
+      const rangeInput = card.querySelector('.time-range-input');
+      if (rangeInput) rangeInput.value = (totalSec / 3600).toFixed(1);
+    }
+    sounds.playComplete();
   }
 }
 
