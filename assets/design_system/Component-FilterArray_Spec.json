@@ -1,0 +1,35 @@
+{
+  "component_name": "Component-FilterArray (The Cleansing Mechanism)",
+  "target_zone": "Transition Zone (T+0:36 ~ T+0:41)",
+  "color_palette": {
+    "primary_input": "#9F222B",
+    "accent": "#FFC300",
+    "transition_visual": "Semi-transparent Cyan/Black gradient mask"
+  },
+  "visual_description": "원시 데이터(Raw Data)를 통제된 시스템이 '처리'하는 과정을 시각화한 핵심 컴포넌트. 데이터가 필터링되는 행위를 명확히 보여줘야 합니다.",
+  "technical_specs": {
+    "mechanism": "Data Gate/Information Funnel",
+    "animation_logic": [
+      {
+        "step": 1,
+        "action": "Gate Opening (Deep Red)",
+        "visual": "Component-RawData가 화면을 가로지르며 진입. 강한 빛의 왜곡(Chromatic Aberration) 효과를 적용.",
+        "timing_ms": "0 - 500ms"
+      },
+      {
+        "step": 2,
+        "action": "Filtering Process (The Core)",
+        "visual": "강력하고 규칙적인 패턴의 게이트(Gate)가 데이터 스트림 위에 오버레이됨. 이 게이트는 '데이터 검증 로직'을 상징하며, 시각적으로 압축되고 정렬되는 효과를 줍니다.",
+        "timing_ms": "500ms - 3000ms (2.5 seconds)",
+        "process_detail": "진입하는 데이터(Deep Red)는 게이트에 의해 강하게 왜곡/필터링되며, 내부에서 '시스템 필터 배열'의 논리 회로가 번쩍이는 모습이 보여야 함."
+      },
+      {
+        "step": 3,
+        "action": "Gate Closing (Cyan Blue)",
+        "visual": "게이트가 빠르게 닫히면서, 통과한 데이터만이 투명하게 남고, 배경 전체에 Cyan Blue의 '안정화 필터' 효과(Soft Bloom/Glow)가 퍼지며 전환을 완료합니다.",
+        "timing_ms": "3000ms - 4200ms (0.5 seconds)"
+      }
+    ],
+    "sound_design": "초기 노이즈음 $\to$ 저주파의 기계적인 '윙-' 하는 필터링 사운드(Humming/Processing Sound) $\to$ 깨끗한 디지털 톤의 징글(Jingle)."
+  }
+}

@@ -2290,26 +2290,62 @@ function toggleDeviceNode(btn) {
 }
 
 // ==========================================
-// 10. VIEWPORT MODE TOGGLE (MOCKUP / FULL)
+// 10. VIEWPORT MODE (PC 와이드 뷰 / 스마트폰 모바일 뷰)
 // ==========================================
-function toggleViewportMode() {
-  sounds.playTap();
+function setViewportMode(mode) {
   const container = document.getElementById('phoneContainer');
   const btnText = document.getElementById('viewportBtnText');
-  
-  if (container.classList.contains('mockup-mode')) {
+  const headerBtn = document.getElementById('headerViewportToggle');
+  if (!container) return;
+
+  if (mode === 'pc') {
     container.classList.remove('mockup-mode');
-    container.classList.add('fullscreen-mode');
-    btnText.textContent = '📱 모바일 목업 모드';
+    container.classList.add('fullscreen-mode', 'pc-mode');
+    if (btnText) btnText.textContent = '📱 스마트폰 화면 모드';
+    if (headerBtn) {
+      headerBtn.textContent = '📱';
+      headerBtn.title = '스마트폰 화면으로 전환';
+    }
+    localStorage.setItem('life_energy_view_mode', 'pc');
   } else {
-    container.classList.remove('fullscreen-mode');
+    container.classList.remove('fullscreen-mode', 'pc-mode');
     container.classList.add('mockup-mode');
-    btnText.textContent = '🖥️ 와이드 풀스크린 모드';
+    if (btnText) btnText.textContent = '🖥️ PC 와이드 화면 모드';
+    if (headerBtn) {
+      headerBtn.textContent = '🖥️';
+      headerBtn.title = 'PC 와이드 화면으로 전환';
+    }
+    localStorage.setItem('life_energy_view_mode', 'mobile');
   }
+
   setTimeout(() => {
     if (state.currentScreen === 'dashboard') renderChart();
     if (state.currentScreen === 'receiving') resizeQuantumCanvases();
-  }, 300);
+  }, 250);
+}
+
+function toggleViewportMode() {
+  if (typeof sounds !== 'undefined' && sounds.playTap) sounds.playTap();
+  const container = document.getElementById('phoneContainer');
+  if (!container) return;
+  const isPc = container.classList.contains('fullscreen-mode') || container.classList.contains('pc-mode');
+  setViewportMode(isPc ? 'mobile' : 'pc');
+}
+
+function initViewportMode() {
+  const savedMode = localStorage.getItem('life_energy_view_mode');
+  if (savedMode === 'pc') {
+    setViewportMode('pc');
+  } else if (savedMode === 'mobile') {
+    setViewportMode('mobile');
+  } else {
+    // 자동 감지: 화면 가로폭이 768px보다 넓으면 PC 와이드 모드로 시작!
+    if (window.innerWidth > 768) {
+      setViewportMode('pc');
+    } else {
+      setViewportMode('mobile');
+    }
+  }
 }
 
 // ==========================================
@@ -2322,6 +2358,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initECG();
   initPinSecurity();
   initQuantumVisualizer();
+  initViewportMode();
 
   // Navigation tab click handlers
   document.querySelectorAll('.nav-tab-item').forEach(tab => {

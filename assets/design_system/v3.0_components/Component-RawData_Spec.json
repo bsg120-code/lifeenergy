@@ -1,0 +1,38 @@
+{
+  "componentName": "DeepRedErrorGraphModule",
+  "purpose": "실시간 시스템 리스크 및 실패 벡터(Failure Vector)를 시각화합니다.",
+  "visualSpecs": {
+    "colorPalette": {
+      "background": "#1A1A2E",
+      "errorColor": "#9F222B",
+      "accentWarning": "#FFC300",
+      "textPrimary": "white"
+    },
+    "layout": "Full-width, High-contrast data visualization panel. (Dark Mode Default)",
+    "typography": {
+      "headline": "Montserrat Bold, All Caps",
+      "dataLabel": "Noto Sans KR Medium, Large size"
+    }
+  },
+  "dataSchema": {
+    "dataType": "Time Series Array",
+    "description": "시간 흐름에 따른 리스크 지표의 변화를 추적합니다.",
+    "structure": [
+      {"key": "timestamp", "type": "Number", "format": "YYYY-MM-DD HH:mm"},
+      {"key": "raw_value", "type": "Number", "description": "원시 데이터 값 (0~100)"},
+      {"key": "risk_level", "type": "String", "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"], "description": "시스템이 판단한 리스크 단계"}
+    ],
+    "renderingRules": [
+        "Critical Level (>= 85%) 도달 시, 컴포넌트 배경에 Deep Red 오버레이가 점진적으로 증가해야 함.",
+        "그래프 라인은 급락(Drop) 지점에서 가파른 각도 변화를 강조하며, 경고 사이렌 사운드와 동기화되어야 함."
+    ]
+  },
+  "interactiveLogic": {
+    "interactionType": "Time-based animation",
+    "details": [
+      {"action": "Data Update", "trigger": "새 데이터 포인트 수신"},
+      {"effect": "Path Redraw & Scale Transition", "animation": "Smooth bezier curve transition (Duration: 1.5s)"},
+      {"tooltipTrigger": "마우스 오버 시, 해당 시점의 예상 재무 손실($M$) 값을 표시."}
+    ]
+  }
+}

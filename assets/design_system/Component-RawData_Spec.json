@@ -1,0 +1,22 @@
+{
+  "component_name": "Component-RawData (Chaos Overload)",
+  "target_zone": "Deep Red Zone (T+0:35)",
+  "color_palette": {
+    "primary": "#9F222B",
+    "secondary": "#FFC300"
+  },
+  "visual_description": "과부하된 데이터 스트림을 표현하는 비주얼. 마치 컴퓨터가 과열되거나, 무한한 에러 코드가 쏟아지는 듯한 느낌.",
+  "technical_specs": {
+    "data_stream_type": [
+      {"element": "Error Code", "pattern": "[ERROR: ACCESS DENIED] - TIMESTAMP", "speed": "High Frequency (10-20/sec)"},
+      {"element": "Binary Noise", "pattern": "Random 0s and 1s stream", "visual_effect": "Scanline overlay with flicker effect"},
+      {"element": "Log Message", "pattern": "Unstructured text dumps, varying length (e.g., 'Failed to establish connection...' )", "speed": "Medium/High"}
+    ],
+    "animation_logic": {
+      "movement": "Random jittering and rapid scrolling.",
+      "opacity_curve": "Start at 0% transparency and rapidly increase to 100%.",
+      "sound_design": "High-pitched, erratic 'BEEP' sounds; digital static burst SFX."
+    },
+    "output_format_note": "영상에서 배경 레이어(Background Layer)로 사용되어야 하며, 다른 컴포넌트가 전경으로 올라올 때 시각적 밀도(Visual Density)를 높이는 역할을 수행합니다."
+  }
+}

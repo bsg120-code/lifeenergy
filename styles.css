@@ -140,16 +140,25 @@ body {
   position: relative;
 }
 
-/* Fullscreen Mode */
-.phone-viewport-container.fullscreen-mode {
-  width: 100%;
-  max-width: 900px;
-  height: 92vh;
-  border-radius: 28px;
-  background: rgba(13, 18, 36, 0.95);
+/* PC 데스크톱 와이드 모드 (PC Screen Mode) */
+.phone-viewport-container.fullscreen-mode,
+.phone-viewport-container.pc-mode {
+  width: 95vw;
+  max-width: 1440px;
+  height: 95vh;
+  border-radius: 20px;
+  background: rgba(11, 16, 38, 0.96);
   padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(0, 242, 254, 0.25);
+  box-shadow: 
+    0 25px 70px rgba(0, 0, 0, 0.85),
+    0 0 45px rgba(0, 242, 254, 0.12);
+  margin: 0 auto;
+}
+
+.pc-mode .app-screen,
+.fullscreen-mode .app-screen {
+  border-radius: 18px;
 }
 
 /* PHONE HARDWARE BUTTONS */
@@ -1945,11 +1954,131 @@ body {
 }
 
 /* ========================================================
-   MOBILE & PWA STANDALONE RESPONSIVE ADAPTATION
-   모바일 기기 접속 및 홈 화면 바로가기 실행 시 
-   목업 테두리 없이 100% 꽉 찬 네이티브 앱 화면으로 즉시 전환
+   1. PC 데스크톱 와이드 모드 화면 디자인 (PC Screen Layout)
+   화면 폭 769px 이상 또는 .pc-mode / .fullscreen-mode 활성화 시
    ======================================================== */
-@media (max-width: 600px), (display-mode: standalone), (display-mode: fullscreen) {
+@media (min-width: 769px) {
+  /* PC 기본 뷰포트 컨테이너 */
+  .phone-viewport-container.fullscreen-mode,
+  .phone-viewport-container.pc-mode {
+    width: 95vw !important;
+    max-width: 1440px !important;
+    height: 94vh !important;
+    border-radius: 20px !important;
+    background: rgba(11, 16, 38, 0.96) !important;
+    padding: 0 !important;
+    border: 1px solid rgba(0, 242, 254, 0.25) !important;
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.85), 0 0 50px rgba(0, 242, 254, 0.12) !important;
+    margin: 0 auto !important;
+  }
+
+  /* PC 와이드 모드: 상단 노치바 텔레메트리 바 */
+  .pc-mode .status-notch-bar,
+  .fullscreen-mode .status-notch-bar {
+    height: 38px;
+    padding: 0 28px;
+    background: rgba(5, 7, 17, 0.6);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .pc-mode .dynamic-island,
+  .fullscreen-mode .dynamic-island {
+    width: 180px;
+    height: 24px;
+    top: 6px;
+  }
+
+  /* PC 와이드 모드: 헤더 넉넉한 패딩 */
+  .pc-mode .app-header,
+  .fullscreen-mode .app-header {
+    padding: 14px 28px;
+  }
+
+  /* PC 와이드 모드: 메인 스크롤 뷰포트 */
+  .pc-mode .screens-viewport,
+  .fullscreen-mode .screens-viewport {
+    padding: 20px 28px 100px;
+  }
+
+  /* PC 와이드 모드: 메인 타이머 화면 2단 와이드 분할 레이아웃! */
+  .pc-mode #view-timer,
+  .fullscreen-mode #view-timer {
+    display: grid !important;
+    grid-template-columns: 460px 1fr !important;
+    grid-template-rows: auto auto auto !important;
+    column-gap: 24px !important;
+    align-items: start !important;
+  }
+
+  .pc-mode #view-timer.active,
+  .fullscreen-mode #view-timer.active {
+    display: grid !important;
+  }
+
+  /* 좌측 열: 실시간 수신 파형 카드 */
+  .pc-mode .dual-waveforms-card,
+  .fullscreen-mode .dual-waveforms-card {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    margin-bottom: 12px !important;
+  }
+
+  /* 좌측 열: 현재 가동 타이머 스포트라이트 */
+  .pc-mode .active-timers-spotlight,
+  .fullscreen-mode .active-timers-spotlight {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    margin-bottom: 12px !important;
+  }
+
+  /* 좌측 열: 글로벌 타이머 제어 버튼 */
+  .pc-mode .global-timer-controls,
+  .fullscreen-mode .global-timer-controls {
+    grid-column: 1 !important;
+    grid-row: 3 !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* 우측 열: 에너지 공급원 헤드라인 */
+  .pc-mode .section-headline,
+  .fullscreen-mode .section-headline {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    margin-bottom: 10px !important;
+  }
+
+  /* 우측 열: 에너지 공급원 2열 와이드 그리드 배치! */
+  .pc-mode .sources-grid,
+  .fullscreen-mode .sources-grid {
+    grid-column: 2 !important;
+    grid-row: 2 / span 2 !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  /* PC 와이드 모드: 대시보드 통계 카드 가로 4열 배치 */
+  .pc-mode .stats-cards-grid,
+  .fullscreen-mode .stats-cards-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 12px !important;
+  }
+}
+
+@media (min-width: 1300px) {
+  .pc-mode #view-timer,
+  .fullscreen-mode #view-timer {
+    grid-template-columns: 490px 1fr !important;
+    column-gap: 28px !important;
+  }
+}
+
+/* ========================================================
+   2. 스마트폰 모바일 화면 디자인 (Mobile Smartphone Screen Mode)
+   화면 폭 768px 이하 또는 PWA Standalone 접속 시
+   ======================================================== */
+@media (max-width: 768px), (display-mode: standalone) {
   body {
     padding: 0 !important;
     margin: 0 !important;
@@ -1968,7 +2097,8 @@ body {
 
   .phone-viewport-container,
   .phone-viewport-container.mockup-mode,
-  .phone-viewport-container.fullscreen-mode {
+  .phone-viewport-container.fullscreen-mode,
+  .phone-viewport-container.pc-mode {
     width: 100vw !important;
     max-width: 100vw !important;
     height: 100dvh !important;
@@ -1996,6 +2126,24 @@ body {
 
   .status-notch-bar {
     padding-top: max(8px, env(safe-area-inset-top));
+  }
+
+  /* 스마트폰 전용 세로 1열 흐름 */
+  #view-timer {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .sources-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  .stats-cards-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
   }
 }
 

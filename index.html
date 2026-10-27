@@ -57,7 +57,7 @@
       <span>Life Energy Cloud v2.4</span>
     </div>
     <button class="mode-btn" onclick="toggleViewportMode()">
-      <span id="viewportBtnText">🖥️ 와이드 풀스크린 모드</span>
+      <span id="viewportBtnText">🖥️ PC 와이드 화면 모드</span>
     </button>
     <button class="mode-btn" onclick="openShareModal()">
       <span>💬 카카오 / 문자 앱 주소 보내기</span>
@@ -74,7 +74,7 @@
   </aside>
 
   <!-- PHONE CONTAINER -->
-  <main class="phone-viewport-container mockup-mode" id="phoneContainer">
+  <main class="phone-viewport-container pc-mode" id="phoneContainer">
     <!-- Hardware Mockup Buttons -->
     <div class="phone-button-left-vol-up" aria-hidden="true"></div>
     <div class="phone-button-left-vol-down" aria-hidden="true"></div>
@@ -108,6 +108,7 @@
           </div>
         </div>
         <div class="header-actions">
+          <button class="icon-btn" onclick="toggleViewportMode()" id="headerViewportToggle" title="PC 와이드 / 스마트폰 화면 전환">🖥️</button>
           <button class="icon-btn" onclick="openShareModal()" title="카카오톡/문자로 앱 주소 보내기">💬</button>
           <button class="icon-btn" onclick="openInstallGuideModal()" title="홈 화면 앱 설치">📲</button>
           <button class="icon-btn lock-btn" onclick="lockApp()" title="앱 잠금">🔒</button>

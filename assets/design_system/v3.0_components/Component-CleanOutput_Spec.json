@@ -1,0 +1,37 @@
+{
+  "componentName": "CyanBlueKPIDashboardWidget",
+  "purpose": "시스템 통제력 확보 후의 최종적이고 측정 가능한 성과 지표를 제시합니다.",
+  "visualSpecs": {
+    "colorPalette": {
+      "background": "#1A1A2E",
+      "primaryColor": "#00A8E0",
+      "successDelta": "#34D399", 
+      "failDelta": "text-red-400"
+    },
+    "layout": "Grid based, Minimalist Card Design. (Authority/Professionalism)",
+    "typography": {
+      "headline": "Montserrat Bold, All Caps",
+      "valueDisplay": "Montserrat ExtraBold, Massive Size (Emphasis on Authority)"
+    }
+  },
+  "dataSchema": {
+    "dataType": "Array of Metrics",
+    "description": "KPI는 명확한 제목, 값, 그리고 전 기간 대비 증감 정보로 구성됩니다.",
+    "structure": [
+      {"key": "title", "type": "String", "maxLength": 30},
+      {"key": "value", "type": "Number", "format": "$#,##0.00"},
+      {"key": "delta", "type": "Number", "optional": true, "description": "전 기간 대비 증감률 (%)"}
+    ],
+    "renderingRules": [
+        "메인 값(Value)은 폰트 크기 및 색상을 통해 절대적인 권위를 갖도록 디자인되어야 합니다.",
+        "증감 표시(Delta)는 단순한 숫자/화살표를 넘어, 전후 비교의 '성공'을 시각적으로 확정해야 합니다."
+    ]
+  },
+  "interactiveLogic": {
+    "interactionType": "Hover/Focus",
+    "details": [
+      {"action": "Card Hover", "trigger": "마우스 오버"},
+      {"effect": "Soft Glow & Lift Transition", "animation": "Box-shadow 확대 및 밝기 증가 (Duration: 0.3s)"}
+    ]
+  }
+}
