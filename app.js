@@ -349,10 +349,10 @@ const energyCarrier = new EnergyCarrierEngine();
 // 2) 돼지고기 (22분)
 // 3) 소고기 (41분)
 // 4) 빠른 휴식 (15분)
-// 5) 고객설정 타이머 (1~180분 자유 조절, 직접입력)
-// 6) 고형체 (8시간)
-// 7) 액상 (72시간)
-// 8) 생체에너지충전 (연속 공급, 종료버튼)
+// 5) 고형체 (8시간)
+// 6) 액상 (72시간)
+// 7) 생체에너지충전 (연속 공급, 종료버튼)
+// 8) 고객설정 타이머 (1시간~100시간 자유 조절, 직접입력)
 const DEFAULT_SOURCES = [
   {
     id: 'basic',
@@ -447,31 +447,6 @@ const DEFAULT_SOURCES = [
     ]
   },
   {
-    id: 'custom',
-    name: '고객설정 타이머 (Custom Preset)',
-    sub: '사용자 맞춤 시간 설정 • 1분~180분 자유 조절 및 정밀 수신',
-    icon: '⏱️',
-    color: '#ffb703',
-    glow: 'rgba(255, 183, 3, 0.45)',
-    initialMinutes: 20,
-    remainingSeconds: 20 * 60,
-    isActive: false,
-    rate: 1.0,
-    totalSupplied: 1200,
-    isContinuous: false,
-    unit: 'minutes',
-    minVal: 1,
-    maxVal: 180,
-    stepVal: 1,
-    quickDeltas: [
-      { label: '-5분', sec: -300 },
-      { label: '-1분', sec: -60 },
-      { label: '+1분', sec: 60 },
-      { label: '+5분', sec: 300 },
-      { label: '+10분', sec: 600 }
-    ]
-  },
-  {
     id: 'solid',
     name: '고형체 (Solid Body Timer)',
     sub: '8시간 정밀 안정화 • 고밀도 바이오 고형체 숙성 및 충전',
@@ -531,6 +506,31 @@ const DEFAULT_SOURCES = [
     rate: 2.0,
     totalSupplied: 1800,
     isContinuous: true
+  },
+  {
+    id: 'custom',
+    name: '고객설정 타이머 (Custom Preset)',
+    sub: '사용자 맞춤 시간 설정 • 1시간~최대 100시간 자유 조절 및 정밀 수신',
+    icon: '⏱️',
+    color: '#ffb703',
+    glow: 'rgba(255, 183, 3, 0.45)',
+    initialMinutes: 10 * 60,
+    remainingSeconds: 10 * 3600,
+    isActive: false,
+    rate: 1.0,
+    totalSupplied: 36000,
+    isContinuous: false,
+    unit: 'hours',
+    minVal: 1,
+    maxVal: 100,
+    stepVal: 1,
+    quickDeltas: [
+      { label: '-1시간', sec: -3600 },
+      { label: '+1시간', sec: 3600 },
+      { label: '+5시간', sec: 18000 },
+      { label: '+10시간', sec: 36000 },
+      { label: '+24시간', sec: 86400 }
+    ]
   }
 ];
 
@@ -1002,7 +1002,7 @@ function initSourcesCards() {
         </div>
 
         <div class="timer-details-row">
-          <span class="time-counter" ${src.id === 'custom' ? `onclick="promptCustomMinutes('${src.id}')" title="클릭하여 분 단위 직접 입력" style="cursor:pointer;"` : ''}>${formatTime(src.remainingSeconds)}</span>
+          <span class="time-counter" ${src.id === 'custom' ? `onclick="promptCustomMinutes('${src.id}')" title="클릭하여 시간 직접 설정" style="cursor:pointer;"` : ''}>${formatTime(src.remainingSeconds)}</span>
           <div class="quick-adj-buttons">
             ${quickButtonsHtml}
             ${src.id === 'custom' ? `<button class="adj-btn" style="border-color:#ffb703; color:#ffb703; font-weight:700;" onclick="promptCustomMinutes('${src.id}')">✏️ 직접입력</button>` : ''}
@@ -1092,26 +1092,24 @@ function promptCustomMinutes(id) {
   sounds.playTap();
   const src = state.sources.find(s => s.id === id);
   if (!src) return;
-  const currentMin = Math.round(src.remainingSeconds / 60);
-  const input = prompt(`⏱️ [고객설정 타이머 시간 직접 설정]\n원하시는 시간을 분(minute) 단위로 입력하세요 (1 ~ 300분):`, currentMin);
+  const currentHours = (src.remainingSeconds / 3600).toFixed(1).replace(/\.0$/, '');
+  const input = prompt(`⏱️ [고객설정 타이머 시간 직접 설정]\n원하시는 시간을 '시간(Hour)' 단위로 입력하세요 (1 ~ 최대 100시간):\n(예: 1, 2.5, 10, 24, 48, 72, 100)`, currentHours);
   if (input !== null && input.trim() !== '') {
-    const num = parseInt(input.trim(), 10);
-    if (!isNaN(num) && num > 0) {
-      src.remainingSeconds = num * 60;
-      src.initialMinutes = num;
-      if (num > src.maxVal) src.maxVal = num;
+    const num = parseFloat(input.trim());
+    if (!isNaN(num) && num > 0 && num <= 100) {
+      src.remainingSeconds = Math.round(num * 3600);
+      src.initialMinutes = Math.round(num * 60);
       renderTimerUI();
       const card = document.getElementById(`source-card-${src.id}`);
       if (card) {
         const rangeInput = card.querySelector('.time-range-input');
         if (rangeInput) {
-          rangeInput.max = src.maxVal;
           rangeInput.value = num;
         }
       }
       sounds.playComplete();
     } else {
-      alert('⚠️ 1 이상의 올바른 숫자를 입력해 주세요 (예: 25, 45, 60)');
+      alert('⚠️ 1부터 100 사이의 올바른 시간(숫자)을 입력해 주세요.\n(예: 10, 24, 72, 100)');
     }
   }
 }
