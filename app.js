@@ -1176,52 +1176,103 @@ function applyCustomHMDirect() {
 }
 
 function promptCustomMinutes(id) {
-  sounds.playTap();
-  const src = state.sources.find(s => s.id === id);
-  if (!src) return;
-  const curH = Math.floor(src.remainingSeconds / 3600);
-  const curM = Math.floor((src.remainingSeconds % 3600) / 60);
-  const input = prompt(`⏱️ [고객설정 타이머 시간/분 직접 설정]\n설정할 시간과 분을 입력하세요.\n(예: '2시간 30분' 또는 '2 30', '10'은 10시간):`, `${curH}시간 ${curM}분`);
-  if (input !== null && input.trim() !== '') {
-    const cleaned = input.trim().replace(/시간/g, ' ').replace(/분/g, '').trim();
-    const parts = cleaned.split(/\s+/);
-    let h = 0;
-    let m = 0;
-    if (parts.length >= 2) {
-      h = parseFloat(parts[0]) || 0;
-      m = parseFloat(parts[1]) || 0;
-    } else {
-      const val = parseFloat(parts[0]);
-      if (!isNaN(val)) {
-        h = Math.floor(val);
-        m = Math.round((val - h) * 60);
-      }
-    }
-    if (h < 0) h = 0;
-    if (h > 100) h = 100;
-    if (m < 0) m = 0;
-    if (m > 59) m = 59;
-    if (h === 100) m = 0;
+  openCustomTimeModal();
+}
 
-    const totalSec = (h * 3600) + (m * 60);
-    src.remainingSeconds = totalSec;
-    src.initialMinutes = (h * 60) + m;
+// ==========================================
+// CUSTOM TIMER MODAL LOGIC (시간 • 분 직접 설정 모달)
+// ==========================================
+function openCustomTimeModal() {
+  if (typeof sounds !== 'undefined' && sounds.playTap) sounds.playTap();
+  const src = state.sources.find(s => s.id === 'custom');
+  const modal = document.getElementById('customTimeModal');
+  const inputH = document.getElementById('modalCustomHours');
+  const inputM = document.getElementById('modalCustomMinutes');
 
-    const inputH = document.getElementById('customInputH');
-    const inputM = document.getElementById('customInputM');
-    if (inputH && inputM) {
-      inputH.value = h;
-      inputM.value = m;
-    }
-
-    renderTimerUI();
-    const card = document.getElementById(`source-card-${src.id}`);
-    if (card) {
-      const rangeInput = card.querySelector('.time-range-input');
-      if (rangeInput) rangeInput.value = (totalSec / 3600).toFixed(1);
-    }
-    sounds.playComplete();
+  if (src && inputH && inputM) {
+    const curH = Math.floor(src.remainingSeconds / 3600);
+    const curM = Math.floor((src.remainingSeconds % 3600) / 60);
+    inputH.value = curH;
+    inputM.value = curM;
   }
+
+  if (modal) modal.classList.add('open');
+}
+
+function closeCustomTimeModal() {
+  if (typeof sounds !== 'undefined' && sounds.playTap) sounds.playTap();
+  const modal = document.getElementById('customTimeModal');
+  if (modal) modal.classList.remove('open');
+}
+
+function addModalCustomTime(addH, addM) {
+  if (typeof sounds !== 'undefined' && sounds.playTap) sounds.playTap();
+  const inputH = document.getElementById('modalCustomHours');
+  const inputM = document.getElementById('modalCustomMinutes');
+  if (!inputH || !inputM) return;
+
+  let h = (parseInt(inputH.value, 10) || 0) + addH;
+  let m = (parseInt(inputM.value, 10) || 0) + addM;
+
+  if (m >= 60) {
+    h += Math.floor(m / 60);
+    m = m % 60;
+  }
+  if (h > 100) { h = 100; m = 0; }
+
+  inputH.value = h;
+  inputM.value = m;
+}
+
+function resetModalCustomTime() {
+  if (typeof sounds !== 'undefined' && sounds.playTap) sounds.playTap();
+  const inputH = document.getElementById('modalCustomHours');
+  const inputM = document.getElementById('modalCustomMinutes');
+  if (inputH) inputH.value = 0;
+  if (inputM) inputM.value = 0;
+}
+
+function applyModalCustomTime() {
+  const inputH = document.getElementById('modalCustomHours');
+  const inputM = document.getElementById('modalCustomMinutes');
+  const src = state.sources.find(s => s.id === 'custom');
+  if (!src || !inputH || !inputM) return;
+
+  let h = parseInt(inputH.value, 10);
+  let m = parseInt(inputM.value, 10);
+  if (isNaN(h) || h < 0) h = 0;
+  if (h > 100) h = 100;
+  if (isNaN(m) || m < 0) m = 0;
+  if (m > 59) m = 59;
+  if (h === 100) m = 0; // 최대 100시간
+
+  const totalSec = (h * 3600) + (m * 60);
+  if (totalSec === 0) {
+    alert('⚠️ 최소 1분 이상의 시간을 설정해 주세요.');
+    return;
+  }
+
+  src.remainingSeconds = totalSec;
+  src.initialMinutes = (h * 60) + m;
+
+  // 카드 내 인풋 동기화
+  const cardH = document.getElementById('customInputH');
+  const cardM = document.getElementById('customInputM');
+  if (cardH && cardM) {
+    cardH.value = h;
+    cardM.value = m;
+  }
+
+  renderTimerUI();
+
+  const card = document.getElementById('source-card-custom');
+  if (card) {
+    const rangeInput = card.querySelector('.time-range-input');
+    if (rangeInput) rangeInput.value = (totalSec / 3600).toFixed(1);
+  }
+
+  closeCustomTimeModal();
+  if (typeof sounds !== 'undefined' && sounds.playComplete) sounds.playComplete();
 }
 
 // [단일 타이머 제어 함수] 1개 타이머만 일시정지/재개/정지/리셋

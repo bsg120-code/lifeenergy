@@ -706,6 +706,63 @@
         </div>
       </div>
 
+      <!-- 11. CUSTOM TIMER MODAL (고객 직접입력 시간/분 전용 설정 모달) -->
+      <div class="modal-backdrop" id="customTimeModal">
+        <div class="modal-box" style="text-align:center; max-width:360px;">
+          <div class="modal-header">
+            <h3 style="font-size:1.05rem; font-weight:700; color:#ffb703;">⏱️ 고객 타이머 직접 설정</h3>
+            <button class="modal-close-btn" onclick="closeCustomTimeModal()">✕</button>
+          </div>
+          <div style="font-size:2.2rem; margin:8px 0 6px;">⚙️</div>
+          <p style="font-size:0.8rem; color:var(--text-secondary); line-height:1.4; margin-bottom:14px;">
+            원하시는 <strong style="color:#ffffff;">시간</strong>과 <strong style="color:#ffffff;">분</strong>을 각각 입력하세요.<br>
+            <span style="font-size:0.75rem; color:#ffb703;">(최대 100시간까지 정밀 설정 가능)</span>
+          </p>
+
+          <!-- 시간 및 분 대형 입력 필드 -->
+          <div style="display:flex; align-items:center; justify-content:center; gap:10px; background:rgba(0,0,0,0.45); padding:16px 12px; border-radius:14px; border:1px solid rgba(255,183,3,0.4); margin-bottom:14px;">
+            <!-- 시간(Hour) 입력 -->
+            <div style="text-align:center;">
+              <span style="font-size:0.75rem; color:#94a3b8; font-weight:600; display:block; margin-bottom:6px;">시간 (0~100)</span>
+              <div style="display:flex; align-items:center; gap:4px; justify-content:center;">
+                <input type="number" id="modalCustomHours" min="0" max="100" value="10" 
+                  style="width:76px; height:48px; background:#0b1026; border:2px solid #ffb703; border-radius:10px; color:#ffffff; font-family:var(--font-mono); font-size:1.5rem; font-weight:800; text-align:center; outline:none;">
+                <span style="font-size:0.95rem; color:#ffb703; font-weight:700;">시간</span>
+              </div>
+            </div>
+
+            <span style="font-size:1.6rem; color:#64748b; font-weight:300; margin-top:18px;">:</span>
+
+            <!-- 분(Minute) 입력 -->
+            <div style="text-align:center;">
+              <span style="font-size:0.75rem; color:#94a3b8; font-weight:600; display:block; margin-bottom:6px;">분 (0~59)</span>
+              <div style="display:flex; align-items:center; gap:4px; justify-content:center;">
+                <input type="number" id="modalCustomMinutes" min="0" max="59" value="0" 
+                  style="width:76px; height:48px; background:#0b1026; border:2px solid #ffb703; border-radius:10px; color:#ffffff; font-family:var(--font-mono); font-size:1.5rem; font-weight:800; text-align:center; outline:none;">
+                <span style="font-size:0.95rem; color:#ffb703; font-weight:700;">분</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 터치형 퀵 증감 버튼들 -->
+          <div style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-bottom:16px;">
+            <button class="adj-btn" onclick="addModalCustomTime(1, 0)">+1시간</button>
+            <button class="adj-btn" onclick="addModalCustomTime(5, 0)">+5시간</button>
+            <button class="adj-btn" onclick="addModalCustomTime(0, 10)">+10분</button>
+            <button class="adj-btn" onclick="addModalCustomTime(0, 30)">+30분</button>
+            <button class="adj-btn" onclick="resetModalCustomTime()" style="color:#ef4444; border-color:rgba(239,68,68,0.4);">초기화</button>
+          </div>
+
+          <!-- 확인/취소 버튼 -->
+          <div style="display:flex; gap:8px;">
+            <button class="control-btn btn-all-start" style="flex:1.4; background:#ffb703; color:#050711; font-weight:800; font-size:0.95rem; border:none;" onclick="applyModalCustomTime()">
+              ✅ 설정 완료
+            </button>
+            <button class="control-btn" style="flex:1;" onclick="closeCustomTimeModal()">취소</button>
+          </div>
+        </div>
+      </div>
+
     </div>
   </main>
 
