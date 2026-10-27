@@ -1,0 +1,19 @@
+{
+  "name": "Life Energy Cloud - 라이프 에너지 관리",
+  "short_name": "라이프에너지",
+  "description": "실시간 자율 에너지 관리 및 정밀 백그라운드 타이머 앱",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#050711",
+  "theme_color": "#050711",
+  "categories": ["utilities", "productivity", "health"],
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

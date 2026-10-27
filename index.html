@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Life Energy Cloud - 라이프 에너지 자율 관리 시스템</title>
+  <meta name="description" content="AI 기반 미래형 에너지 자율 관리 클라우드 플랫폼. 실시간 대시보드, 정밀 백그라운드 타이머, PIN 보안 탑재">
+  
+  <!-- PWA & Mobile Web App Meta Tags -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <meta name="theme-color" content="#050711">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Life Energy">
+  <meta name="mobile-web-app-capable" content="yes">
+  
+  <link rel="stylesheet" href="styles.css">
+  <!-- Fonts & Icons for Quantum Core & Waveform -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      corePlugins: {
+        preflight: false
+      },
+      theme: {
+        extend: {
+          fontFamily: {
+            tech: ['Orbitron', 'sans-serif'],
+            mono: ['Rajdhani', 'monospace']
+          },
+          colors: {
+            qcyan: '#00f5d4',
+            qblue: '#00bbf9',
+            qpurple: '#7209b7',
+            qpink: '#f72585',
+            qdark: '#050711',
+            qcard: 'rgba(11, 16, 38, 0.75)'
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body>
+
+  <!-- DESKTOP TOP BAR -->
+  <aside class="top-desktop-bar" aria-label="데스크톱 도구 모음">
+    <div class="app-badge">
+      <span class="pulse-dot"></span>
+      <span>Life Energy Cloud v2.4</span>
+    </div>
+    <button class="mode-btn" onclick="toggleViewportMode()">
+      <span id="viewportBtnText">🖥️ 와이드 풀스크린 모드</span>
+    </button>
+    <button class="mode-btn" onclick="openShareModal()">
+      <span>💬 카카오 / 문자 앱 주소 보내기</span>
+    </button>
+    <button class="mode-btn" onclick="openInstallGuideModal()">
+      <span>📲 홈 화면에 설치</span>
+    </button>
+    <button class="mode-btn" onclick="downloadAppFile()">
+      <span>📥 앱 파일 다운로드</span>
+    </button>
+    <button class="mode-btn" onclick="sounds.playTap()">
+      <span>🔊 사운드 테스트</span>
+    </button>
+  </aside>
+
+  <!-- PHONE CONTAINER -->
+  <main class="phone-viewport-container mockup-mode" id="phoneContainer">
+    <!-- Hardware Mockup Buttons -->
+    <div class="phone-button-left-vol-up" aria-hidden="true"></div>
+    <div class="phone-button-left-vol-down" aria-hidden="true"></div>
+    <div class="phone-button-right-power" aria-hidden="true"></div>
+
+    <!-- THE APP SCREEN -->
+    <div class="app-screen">
+
+      <!-- 1. STATUS & DYNAMIC ISLAND -->
+      <div class="status-notch-bar">
+        <span id="liveClock">09:41</span>
+        <div class="dynamic-island" id="dynamicIsland">
+          <div class="island-camera"></div>
+          <div class="island-wave">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+        <div class="status-icons">
+          <span>5G</span>
+          <span>100%</span>
+        </div>
+      </div>
+
+      <!-- 2. APP HEADER -->
+      <header class="app-header">
+        <div class="app-title-group">
+          <div class="logo-sphere">⚡</div>
+          <div class="app-titles">
+            <h1>Life Energy Cloud</h1>
+            <p>ACTIVE PULSE • ONLINE</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="icon-btn" onclick="openShareModal()" title="카카오톡/문자로 앱 주소 보내기">💬</button>
+          <button class="icon-btn" onclick="openInstallGuideModal()" title="홈 화면 앱 설치">📲</button>
+          <button class="icon-btn lock-btn" onclick="lockApp()" title="앱 잠금">🔒</button>
+          <button class="icon-btn" onclick="openPinSettingsModal()" title="보안 설정">⚙️</button>
+        </div>
+      </header>
+
+      <!-- 3. HEALTH STRIP -->
+      <div class="health-strip">
+        <div class="health-item">
+          <span class="health-dot"></span>
+          <span id="healthBackgroundText">백그라운드 지속 수신: 켜짐 (타 앱 전환 시 유지)</span>
+        </div>
+        <div class="health-item">
+          <span id="healthDevicesSummary">전 수신 장치 무음 연결됨</span>
+        </div>
+      </div>
+
+      <!-- 4. MAIN SCREENS VIEWPORT -->
+      <div class="screens-viewport">
+
+        <!-- SCREEN A: TIMER (메인 타이머) -->
+        <div id="view-timer" class="screen-view active">
+          <!-- 1. DUAL RECEIVING WAVEFORMS CARD (상단 2가지 수신 파형 상시 활성화) -->
+          <div class="dual-waveforms-card">
+            <div class="meter-header">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="pulse-dot"></span>
+                <span class="meter-title">⚡ 실시간 수신 파형</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="active-count-tag" id="activeSourcesCount">대기 상태</span>
+                <div class="meter-stats-compact">
+                  <span class="total-time-compact" id="totalActiveTimeDisplay">00:00</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 파형 1: 코어 입자 전송 빔 파형 -->
+            <div class="waveform-box core-wave-box">
+              <div class="waveform-mini-label">
+                <span id="labelCoreWave">01. 코어 전송 빔</span>
+                <span id="labelCoreStatus" style="font-family:var(--font-mono); font-size:0.65rem;">대기 상태</span>
+              </div>
+              <canvas id="timerCoreCanvas" class="timer-core-canvas"></canvas>
+            </div>
+
+            <!-- 파형 2: 오실로스코프 고주파 파형 -->
+            <div class="waveform-box osc-wave-box">
+              <div class="waveform-mini-label">
+                <span id="labelOscWave">02. 고주파 간섭계</span>
+                <span id="labelOscStatus" style="font-family:var(--font-mono); font-size:0.65rem;">ψ₁ + ψ₂ + Σ</span>
+              </div>
+              <canvas id="timerWaveCanvas" class="timer-wave-canvas"></canvas>
+            </div>
+          </div>
+
+          <!-- 2. ACTIVE TIMERS SPOTLIGHT (파형 아래 타이머 설정 활성 항목 화면) -->
+          <div id="activeTimersSpotlight" class="active-timers-spotlight standby">
+            <div class="spotlight-standby-msg" id="spotlightStandbyMsg">
+              <span>⚪ 대기 모드 • 하단 공급원 타이머가 시작되면 실시간 수신 파형이 활성화됩니다</span>
+            </div>
+            <div class="spotlight-active-content hidden" id="spotlightActiveContent">
+              <div class="spotlight-header">
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <span class="spotlight-title">⚡ 현재 가동 타이머 (단독)</span>
+                </div>
+                <span id="spotlightCountBadge" class="spotlight-badge">단독 가동 중</span>
+              </div>
+              <div id="spotlightItemsList" class="spotlight-items-list">
+                <!-- Dynamically populated when active -->
+              </div>
+            </div>
+          </div>
+
+          <!-- All Controls (단일 타이머 전용 제어) -->
+          <div class="global-timer-controls">
+            <button class="control-btn btn-all-start" id="btnActiveToggle" onclick="controlActiveTimer('toggle')">⏸ 일시정지 / 재개</button>
+            <button class="control-btn btn-all-stop" onclick="controlActiveTimer('stop')">⏹ 타이머 정지</button>
+            <button class="control-btn" onclick="controlActiveTimer('reset')">↺ 시간 리셋</button>
+          </div>
+
+          <!-- Sources Section -->
+          <div class="section-headline">
+            <span>에너지 공급원 (ENERGY SOURCES)</span>
+            <span style="font-size:0.7rem; color:var(--accent-cyan);">단일 독점 가동 모드 (1개 전용)</span>
+          </div>
+          <div class="sources-grid" id="sourcesGrid">
+            <!-- Dynamically populated by JS -->
+          </div>
+        </div>
+
+        <!-- SCREEN B: DASHBOARD (대시보드) -->
+        <div id="view-dashboard" class="screen-view">
+          <div class="section-headline">
+            <span>누적 통계 및 대시보드</span>
+            <button class="adj-btn" onclick="state.resetAllData(); renderDashboardUI(); renderChart();">초기화</button>
+          </div>
+
+          <div class="stats-cards-grid">
+            <div class="stat-metric-card">
+              <div class="stat-label">총 충전 에너지</div>
+              <div class="stat-val" id="dashTotalSupplied">0.000 kWh</div>
+              <div class="stat-sub">▲ 전일 대비 +18.4%</div>
+            </div>
+            <div class="stat-metric-card">
+              <div class="stat-label">활성 스트림 수</div>
+              <div class="stat-val" id="dashActiveCount">0 개</div>
+              <div class="stat-sub">안정적 분산 공급 중</div>
+            </div>
+            <div class="stat-metric-card">
+              <div class="stat-label">에너지 공급 효율</div>
+              <div class="stat-val" id="dashEfficiencyScore">98%</div>
+              <div class="stat-sub">최적 밸런스 유지</div>
+            </div>
+            <div class="stat-metric-card">
+              <div class="stat-label">보안 상태</div>
+              <div class="stat-val" style="color:var(--accent-emerald);">SECURE</div>
+              <div class="stat-sub">4-Digit PIN 보호됨</div>
+            </div>
+          </div>
+
+          <!-- Hourly Chart -->
+          <div class="chart-card">
+            <div class="section-headline" style="margin-bottom:4px;">
+              <span>시간대별 에너지 충전 추이 (12H)</span>
+            </div>
+            <canvas id="dashboardChart" class="chart-canvas"></canvas>
+          </div>
+
+          <!-- Category Distribution -->
+          <div class="section-headline">
+            <span>공급원별 누적 점유율</span>
+          </div>
+          <div class="distribution-list" id="categoryDistribution">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- SCREEN C: RECEIVING (양자 에너지 수신 세션) -->
+        <div id="view-receiving" class="screen-view">
+          
+          <!-- QUANTUM TRANSMISSION FLUX HEADER -->
+          <div class="glass-panel rounded-2xl p-3 sm:p-4 mb-3 border border-cyan-500/30 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center space-x-3">
+              <div class="relative w-9 h-9 flex items-center justify-center rounded-lg bg-cyan-950 border border-qcyan/50 glow-cyan">
+                <i class="fa-solid fa-atom text-qcyan text-xl animate-spin" style="animation-duration: 9s;"></i>
+              </div>
+              <div>
+                <h2 class="font-tech text-sm sm:text-base font-bold tracking-wider text-white flex items-center gap-1.5 m-0">
+                  QUANTUM <span class="text-qcyan text-glow-cyan">TRANSMISSION</span> FLUX
+                </h2>
+                <p class="font-mono text-[10px] sm:text-[11px] text-cyan-400/70 tracking-widest uppercase m-0">Subatomic Energy Transfer & Waveform Field</p>
+              </div>
+            </div>
+
+            <!-- Live metrics telemetry -->
+            <div class="flex items-center space-x-4 text-xs font-mono ml-auto">
+              <div class="hidden sm:flex flex-col text-right">
+                <span class="text-slate-400 text-[9px]">FLUX TRANSFER RATE</span>
+                <span id="telemetry-rate" class="text-qcyan font-bold text-xs sm:text-sm tracking-widest">3.842 PFLOPS/e</span>
+              </div>
+              <div class="hidden md:flex flex-col text-right">
+                <span class="text-slate-400 text-[9px]">ENTANGLEMENT</span>
+                <span id="telemetry-coherence" class="text-qpink font-bold text-xs sm:text-sm tracking-widest">99.74 %</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button id="audio-toggle-btn" class="px-2.5 py-1 rounded-lg border border-cyan-500/30 bg-cyan-950/40 hover:bg-cyan-900/60 transition text-[11px] font-mono text-cyan-300 flex items-center gap-1.5 cursor-pointer">
+                  <i class="fa-solid fa-volume-xmark" id="audio-icon"></i>
+                  <span id="audio-label">AUDIO OFF</span>
+                </button>
+                <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399] animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 1. Upper Visualization: Quantum Energy Core & Transmission Field -->
+          <div class="glass-panel rounded-2xl p-3 sm:p-4 mb-3 shadow-2xl relative overflow-hidden flex flex-col border border-cyan-500/20">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5 z-10">
+              <div class="flex items-center space-x-2">
+                <span class="w-2 h-2 rounded-full bg-qcyan"></span>
+                <h3 class="font-tech text-xs sm:text-sm font-semibold tracking-wide text-white m-0">
+                  01. CORE ENERGY TRANSMISSION STREAM
+                </h3>
+                <span class="bg-cyan-500/10 text-qcyan text-[10px] font-mono px-1.5 py-0.5 rounded border border-cyan-500/30">INTERACTIVE VECTOR</span>
+              </div>
+              
+              <!-- Energy Transfer Modes -->
+              <div class="flex flex-wrap items-center gap-1.5">
+                <button class="quantum-mode-btn active px-2.5 py-1 rounded text-[11px] font-mono tracking-wider transition border border-qcyan bg-cyan-500/20 text-qcyan cursor-pointer" data-mode="superconducting">
+                  <i class="fa-solid fa-bolt mr-1"></i>초전도 방출
+                </button>
+                <button class="quantum-mode-btn px-2.5 py-1 rounded text-[11px] font-mono tracking-wider transition border border-slate-700 bg-slate-900/50 text-slate-400 hover:text-white cursor-pointer" data-mode="resonance">
+                  <i class="fa-solid fa-arrows-spin mr-1"></i>공명 포집
+                </button>
+                <button class="quantum-mode-btn px-2.5 py-1 rounded text-[11px] font-mono tracking-wider transition border border-slate-700 bg-slate-900/50 text-slate-400 hover:text-white cursor-pointer" data-mode="burst">
+                  <i class="fa-solid fa-burst mr-1"></i>양자 펄스
+                </button>
+              </div>
+            </div>
+
+            <!-- Upper Canvas Box -->
+            <div class="relative w-full h-[260px] sm:h-[340px] rounded-xl overflow-hidden bg-black/60 border border-cyan-500/20 group">
+              <canvas id="core-canvas" class="w-full h-full block cursor-crosshair"></canvas>
+              
+              <!-- Interactive Tip Overlay -->
+              <div class="absolute bottom-2.5 left-3 pointer-events-none text-[10px] font-mono text-cyan-400/70 bg-black/60 px-2 py-0.5 rounded backdrop-blur border border-white/5">
+                <i class="fa-solid fa-hand-pointer mr-1 text-qcyan"></i> 마우스/터치로 양자 에너지장 왜곡 및 방출 유도
+              </div>
+
+              <!-- Telemetry HUD Badge inside Canvas -->
+              <div class="absolute top-2.5 right-3 pointer-events-none flex flex-col gap-1 text-right font-mono text-[11px]">
+                <div class="bg-black/70 px-2.5 py-1 rounded-lg border border-cyan-500/30 text-cyan-200">
+                  <span class="text-slate-400 text-[9px] block">PLASMA DENSITY</span>
+                  <span id="core-density-val" class="font-bold text-qcyan text-xs">4.88 × 10¹⁴ eV</span>
+                </div>
+                <div class="bg-black/70 px-2.5 py-1 rounded-lg border border-pink-500/30 text-pink-200">
+                  <span class="text-slate-400 text-[9px] block">FLUX EFFICIENCY</span>
+                  <span id="core-efficiency-val" class="font-bold text-qpink text-xs">98.4 %</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Lower Visualization: Real-time Quantum Waveform & Interference -->
+          <div class="glass-panel rounded-2xl p-3 sm:p-4 mb-3 shadow-2xl relative overflow-hidden flex flex-col border border-cyan-500/20">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5 z-10">
+              <div class="flex items-center space-x-2">
+                <span class="w-2 h-2 rounded-full bg-qpink"></span>
+                <h3 class="font-tech text-xs sm:text-sm font-semibold tracking-wide text-white m-0">
+                  02. QUANTUM WAVE HARMONICS & RESONANCE
+                </h3>
+                <span class="bg-pink-500/10 text-qpink text-[10px] font-mono px-1.5 py-0.5 rounded border border-pink-500/30">OSCILLOSCOPE</span>
+              </div>
+              
+              <div class="flex items-center gap-2 text-[11px] font-mono">
+                <span class="text-slate-400">STATE:</span>
+                <span id="wave-mode-badge" class="text-cyan-300 font-bold tracking-wider">COHERENT INTERFERENCE</span>
+              </div>
+            </div>
+
+            <!-- Waveform Canvas Box -->
+            <div class="relative w-full h-[170px] sm:h-[220px] rounded-xl overflow-hidden bg-black/60 border border-blue-500/20">
+              <canvas id="wave-canvas" class="w-full h-full block cursor-ew-resize"></canvas>
+
+              <!-- Wave Indicators -->
+              <div class="absolute top-2 left-2.5 pointer-events-none flex items-center space-x-3 text-[10px] font-mono bg-black/60 px-2 py-1 rounded border border-white/5">
+                <div class="flex items-center gap-1 text-qcyan">
+                  <span class="w-2 h-0.5 bg-qcyan inline-block"></span>
+                  <span>ψ₁ 기본파</span>
+                </div>
+                <div class="flex items-center gap-1 text-qpink">
+                  <span class="w-2 h-0.5 bg-qpink inline-block"></span>
+                  <span>ψ₂ 고주파</span>
+                </div>
+                <div class="flex items-center gap-1 text-qblue">
+                  <span class="w-2 h-0.5 bg-qblue inline-block"></span>
+                  <span>Σ 확률 밀도</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Real-time Control Sliders -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 mt-2.5 p-2.5 rounded-xl glass-panel-sub">
+              <!-- Frequency -->
+              <div class="flex flex-col gap-1">
+                <div class="flex justify-between text-[11px] font-mono">
+                  <span class="text-slate-300">공명 주파수</span>
+                  <span id="val-freq" class="text-qcyan font-bold">2.40 Hz</span>
+                </div>
+                <input type="range" id="slider-freq" min="0.5" max="6.0" step="0.1" value="2.4" class="w-full">
+              </div>
+
+              <!-- Amplitude -->
+              <div class="flex flex-col gap-1">
+                <div class="flex justify-between text-[11px] font-mono">
+                  <span class="text-slate-300">에너지 진폭</span>
+                  <span id="val-amp" class="text-qblue font-bold">45.0 %</span>
+                </div>
+                <input type="range" id="slider-amp" min="10" max="90" step="1" value="45" class="w-full">
+              </div>
+
+              <!-- Wave Speed -->
+              <div class="flex flex-col gap-1">
+                <div class="flex justify-between text-[11px] font-mono">
+                  <span class="text-slate-300">전달 속도</span>
+                  <span id="val-speed" class="text-qpink font-bold">1.25 c</span>
+                </div>
+                <input type="range" id="slider-speed" min="0.2" max="3.0" step="0.05" value="1.25" class="w-full">
+              </div>
+
+              <!-- Quantum Noise / Harmonic -->
+              <div class="flex flex-col gap-1">
+                <div class="flex justify-between text-[11px] font-mono">
+                  <span class="text-slate-300">고주파 간섭</span>
+                  <span id="val-harmonics" class="text-purple-300 font-bold">3차 양자 간섭</span>
+                </div>
+                <input type="range" id="slider-harmonics" min="1" max="5" step="1" value="3" class="w-full">
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Receiving Packets Status Bar -->
+          <div class="glass-panel rounded-xl p-3 flex items-center justify-between border border-cyan-500/20 text-xs font-mono">
+            <div class="flex items-center gap-2">
+              <span class="health-dot"></span>
+              <span class="text-slate-300">클라우드 허브 에너지 수신 정상</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-slate-400">수신 패킷:</span>
+              <span id="rxPacketCount" class="text-qcyan font-bold">1,420 pkts</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- SCREEN D: NETWORK (네트워크 노드) -->
+        <div id="view-network" class="screen-view">
+          <div class="section-headline">
+            <span>연동 디바이스 노드 (DEVICES)</span>
+            <span style="font-size:0.7rem; color:var(--accent-emerald);" id="deviceOnlineCountTag">5대 온라인</span>
+          </div>
+
+          <div class="device-nodes-list">
+            <!-- 1. 신규 개선: 에너지디바이스 연결 데스크탑 -->
+            <div class="device-node-card desktop-card">
+              <div class="device-node-top">
+                <div class="device-info-left">
+                  <div class="device-avatar desktop-avatar">🖥️</div>
+                  <div class="device-title-box">
+                    <h4 class="device-title-text">에너지 디바이스 연결 PC</h4>
+                    <p class="device-subtext">USB 고속 직결 및 클라우드 실시간 제어</p>
+                  </div>
+                </div>
+                <button class="device-sync-btn active" onclick="toggleDeviceNode(this)">연동 중 • 100%</button>
+              </div>
+              <div class="device-bottom-specs">
+                <span class="spec-chip green">⚡ HW 직결</span>
+                <span class="spec-chip cyan">🔌 COM3</span>
+                <span class="spec-chip cyan">🌐 LAN 1Gbps</span>
+                <span class="spec-chip green">● 지연 2ms</span>
+              </div>
+            </div>
+
+            <!-- 2. Smart Band Pro -->
+            <div class="device-node-card">
+              <div class="device-node-top">
+                <div class="device-info-left">
+                  <div class="device-avatar">⌚</div>
+                  <div class="device-title-box">
+                    <div class="device-title-row">
+                      <span class="device-title-text">Smart Band Pro</span>
+                    </div>
+                    <p class="device-subtext">심박 & 체온 센서 • 배터리 88%</p>
+                  </div>
+                </div>
+                <button class="device-sync-btn" style="color:var(--accent-emerald);" onclick="toggleDeviceNode(this)">연동 중 • 99%</button>
+              </div>
+            </div>
+
+            <!-- 3. EEG Bio-Headset -->
+            <div class="device-node-card">
+              <div class="device-node-top">
+                <div class="device-info-left">
+                  <div class="device-avatar">🧠</div>
+                  <div class="device-title-box">
+                    <div class="device-title-row">
+                      <span class="device-title-text">EEG Bio-Headset</span>
+                    </div>
+                    <p class="device-subtext">알파/세타 뇌파 트래커 • 배터리 94%</p>
+                  </div>
+                </div>
+                <button class="device-sync-btn" style="color:var(--accent-emerald);" onclick="toggleDeviceNode(this)">연동 중 • 99%</button>
+              </div>
+            </div>
+
+            <!-- 4. Home Energy Hub -->
+            <div class="device-node-card">
+              <div class="device-node-top">
+                <div class="device-info-left">
+                  <div class="device-avatar">🏠</div>
+                  <div class="device-title-box">
+                    <div class="device-title-row">
+                      <span class="device-title-text">Home Energy Hub</span>
+                    </div>
+                    <p class="device-subtext">공간 조도 및 바이오 사운드 조절기</p>
+                  </div>
+                </div>
+                <button class="device-sync-btn" style="color:var(--accent-emerald);" onclick="toggleDeviceNode(this)">연동 중 • 99%</button>
+              </div>
+            </div>
+
+            <!-- 5. Workstation Client -->
+            <div class="device-node-card">
+              <div class="device-node-top">
+                <div class="device-info-left">
+                  <div class="device-avatar">💻</div>
+                  <div class="device-title-box">
+                    <div class="device-title-row">
+                      <span class="device-title-text">Workstation Client</span>
+                    </div>
+                    <p class="device-subtext">집중 모드 동기화 앱 • 온디바이스</p>
+                  </div>
+                </div>
+                <button class="device-sync-btn" style="color:var(--accent-emerald);" onclick="toggleDeviceNode(this)">연동 중 • 99%</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCREEN E: GIFT (에너지 선물) -->
+        <div id="view-gift" class="screen-view">
+          <div class="gift-card-box">
+            <h3 style="font-size:1.05rem; margin-bottom:4px;">🎁 라이프 에너지 선물하기</h3>
+            <p style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:16px;">
+              동료 또는 소중한 사람에게 긍정의 활력 에너지를 패킷으로 전송하세요.
+            </p>
+
+            <label style="font-size:0.75rem; color:var(--text-secondary);">받는 분 (ID 또는 닉네임)</label>
+            <input type="text" id="giftRecipient" class="recipient-input" placeholder="예: user_life01 또는 친구 이름">
+
+            <label style="font-size:0.75rem; color:var(--text-secondary);">보낼 에너지 용량</label>
+            <div class="amount-chips">
+              <div class="amount-chip active" onclick="selectGiftAmount('10', this)">10 kWh</div>
+              <div class="amount-chip" onclick="selectGiftAmount('25', this)">25 kWh</div>
+              <div class="amount-chip" onclick="selectGiftAmount('50', this)">50 kWh</div>
+              <div class="amount-chip" onclick="selectGiftAmount('100', this)">100 kWh</div>
+            </div>
+            <input type="hidden" id="giftAmountVal" value="10">
+
+            <label style="font-size:0.75rem; color:var(--text-secondary);">응원 메시지 (선택)</label>
+            <input type="text" id="giftMessage" class="message-input" placeholder="오늘도 활력 넘치는 하루 되세요!">
+
+            <button class="btn-send-gift" onclick="sendGiftEnergy()">
+              <span>🚀 에너지 패킷 전송</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 5. PERSISTENT FLOATING ENERGY BAR -->
+      <div class="persistent-energy-bar" id="persistentEnergyBar">
+        <div class="bar-info">
+          <div class="bar-pulse-icon"></div>
+          <div>
+            <div class="bar-text-main" id="barActiveText">공급원 가동 중</div>
+            <div style="font-size:0.65rem; color:var(--text-muted);">탭하여 타이머 화면으로 복귀</div>
+          </div>
+        </div>
+        <div class="bar-time-remaining" id="barTimeRemaining">00:00</div>
+      </div>
+
+      <!-- 6. BOTTOM NAVIGATION BAR -->
+      <nav class="bottom-nav-bar" id="bottomNav">
+        <div class="nav-tab-item active" data-screen="timer">
+          <span class="tab-icon">⏱️</span>
+          <span class="tab-label">타이머</span>
+        </div>
+        <div class="nav-tab-item" data-screen="receiving">
+          <span class="tab-icon">📥</span>
+          <span class="tab-label">수신</span>
+        </div>
+        <div class="nav-tab-item" data-screen="dashboard">
+          <span class="tab-icon">📊</span>
+          <span class="tab-label">대시보드</span>
+        </div>
+        <div class="nav-tab-item" data-screen="network">
+          <span class="tab-icon">🌐</span>
+          <span class="tab-label">네트워크</span>
+        </div>
+        <div class="nav-tab-item" data-screen="gift">
+          <span class="tab-icon">🎁</span>
+          <span class="tab-label">선물</span>
+        </div>
+      </nav>
+
+      <!-- 7. PIN LOCK SCREEN OVERLAY -->
+      <div class="pin-lock-overlay" id="pinLockOverlay">
+        <div class="pin-shield-icon">🛡️</div>
+        <h2 style="font-size:1.25rem; font-weight:700;">Life Energy Cloud</h2>
+        <p style="font-size:0.78rem; color:var(--text-secondary); margin-top:4px;">앱 보호를 위해 4자리 PIN을 입력하세요</p>
+
+        <div class="pin-dots" id="pinDots">
+          <div class="pin-dot"></div>
+          <div class="pin-dot"></div>
+          <div class="pin-dot"></div>
+          <div class="pin-dot"></div>
+        </div>
+
+        <div class="pin-keypad">
+          <button class="key-btn" onclick="pressPinKey('1')">1</button>
+          <button class="key-btn" onclick="pressPinKey('2')">2</button>
+          <button class="key-btn" onclick="pressPinKey('3')">3</button>
+          <button class="key-btn" onclick="pressPinKey('4')">4</button>
+          <button class="key-btn" onclick="pressPinKey('5')">5</button>
+          <button class="key-btn" onclick="pressPinKey('6')">6</button>
+          <button class="key-btn" onclick="pressPinKey('7')">7</button>
+          <button class="key-btn" onclick="pressPinKey('8')">8</button>
+          <button class="key-btn" onclick="pressPinKey('9')">9</button>
+          <button class="key-btn" style="font-size:0.9rem;" onclick="unlockApp()">해제</button>
+          <button class="key-btn" onclick="pressPinKey('0')">0</button>
+          <button class="key-btn" style="font-size:1.1rem;" onclick="clearPinDigit()">⌫</button>
+        </div>
+        <p id="pinHintText" style="font-size:0.75rem; color:var(--text-secondary); margin-top:20px; font-weight:500;">🔒 허가된 4자리 보안 비밀번호를 입력하세요</p>
+      </div>
+
+      <!-- 8. SECURITY POLICY INFO MODAL -->
+      <div class="modal-backdrop" id="pinSettingsModal">
+        <div class="modal-box" style="text-align:center;">
+          <div class="modal-header">
+            <h3 style="font-size:1rem; font-weight:600;">🔒 보안 비밀번호 안내</h3>
+            <button class="modal-close-btn" onclick="closePinSettingsModal()">✕</button>
+          </div>
+          <div style="font-size:2.4rem; margin:8px 0 12px;">🛡️</div>
+          <div style="display:inline-block; padding:5px 14px; border-radius:999px; background:rgba(0, 242, 254, 0.12); border:1px solid rgba(0, 242, 254, 0.35); color:var(--accent-cyan); font-size:0.8rem; font-weight:700; margin-bottom:14px;">
+            현재 고정 보안 PIN: 5098
+          </div>
+          <p style="font-size:0.8rem; color:var(--text-secondary); line-height:1.6; margin-bottom:16px;">
+            현재 버전은 안전한 서비스 체험을 위해 관리자 고정 비밀번호(<strong>5098</strong>)로 운영 중입니다.<br><br>
+            <span style="color:var(--accent-amber); font-weight:600;">💡 사용자 개별 비밀번호 변경 기능은 향후 유료화 정식 서비스 전환 시 제공됩니다.</span>
+          </p>
+          <button class="control-btn btn-all-start" style="width:100%;" onclick="closePinSettingsModal()">확인</button>
+        </div>
+      </div>
+
+      <!-- 9. INSTALL GUIDE MODAL -->
+      <div class="modal-backdrop" id="installGuideModal">
+        <div class="modal-box">
+          <div class="modal-header">
+            <h3 style="font-size:1rem; font-weight:600;">📲 스마트폰 홈 화면에 앱 설치하기</h3>
+            <button class="modal-close-btn" onclick="closeInstallGuideModal()">✕</button>
+          </div>
+          <div style="font-size:2.4rem; margin:8px 0 12px;">📱</div>
+          <div style="text-align:left; font-size:0.8rem; color:var(--text-secondary); line-height:1.6; margin-bottom:16px;">
+            <p style="margin-bottom:10px;"><strong style="color:var(--accent-cyan);">🍎 아이폰 / iPad (Safari):</strong><br>
+            1. 화면 하단 중앙 <span style="color:#ffffff; font-weight:700;">[공유 ⎋]</span> 버튼 터치<br>
+            2. 메뉴에서 <span style="color:#ffffff; font-weight:700;">[홈 화면에 추가 ➕]</span> 선택<br>
+            <span style="font-size:0.73rem; color:var(--accent-cyan);">👉 바탕화면에 앱 아이콘이 생겨 누르면 주소창 없이 진짜 앱으로 바로 열립니다!</span></p>
+            <p style="margin-bottom:10px;"><strong style="color:var(--accent-emerald);">🤖 갤럭시 / 안드로이드 (Chrome):</strong><br>
+            1. 화면 우측 상단 <span style="color:#ffffff; font-weight:700;">[더보기 ⋮]</span> 메뉴 터치<br>
+            2. <span style="color:#ffffff; font-weight:700;">[앱 설치]</span> 또는 <span style="color:#ffffff; font-weight:700;">[홈 화면에 추가]</span> 선택</p>
+            <p style="font-size:0.75rem; color:#f59e0b; background:rgba(245,158,11,0.1); padding:6px 10px; border-radius:6px; border:1px solid rgba(245,158,11,0.25);">
+              💡 <strong>카카오톡 링크로 열렸다면?</strong><br>
+              화면 우측 하단 <strong>[ ⋮ ]</strong> 또는 <strong>[더보기]</strong>를 눌러 <strong>[기본 브라우저(Safari/Chrome)로 열기]</strong>를 선택하시면 홈 화면 추가 및 전체화면 앱으로 바로 즐기실 수 있습니다.
+            </p>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="control-btn btn-all-start" style="flex:1;" onclick="copyAppUrl()">🔗 앱 주소 복사하기</button>
+            <button class="control-btn" style="flex:1;" onclick="closeInstallGuideModal()">닫기</button>
+          </div>
+        </div>
+      <!-- 10. SHARE MODAL (카카오톡 및 문자메시지 전송 모달) -->
+      <div class="modal-backdrop" id="shareModal">
+        <div class="modal-box" style="text-align:center; max-width:360px;">
+          <div class="modal-header">
+            <h3 style="font-size:1.05rem; font-weight:700;">💬 앱 주소 보내기 / 공유</h3>
+            <button class="modal-close-btn" onclick="closeShareModal()">✕</button>
+          </div>
+          <div style="font-size:2.2rem; margin:8px 0 10px;">⚡</div>
+          <p style="font-size:0.8rem; color:var(--text-secondary); line-height:1.5; margin-bottom:12px;">
+            가족, 지인 또는 내 스마트폰으로 앱 주소를 전송하여<br>누구나 클릭 한 번으로 앱을 열 수 있습니다.
+          </p>
+
+          <div id="fileProtocolNotice" style="display:none; background:rgba(245, 158, 11, 0.12); border:1px solid rgba(245, 158, 11, 0.3); border-radius:8px; padding:8px 10px; font-size:0.73rem; color:#fbbf24; text-align:left; line-height:1.45; margin-bottom:14px;">
+            💡 <strong>안내:</strong> 현재 컴퓨터 로컬 파일 주소입니다. 다른 사람 스마트폰에서 인터넷으로 열리게 하려면 <strong>무료 인터넷 주소(웹 배포)</strong>가 필요합니다.
+          </div>
+          
+          <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
+            <!-- 카카오톡 공유 -->
+            <button class="control-btn" style="background:#fee500; color:#191919; font-weight:700; border:none; display:flex; align-items:center; justify-content:center; gap:8px; padding:12px; border-radius:10px; font-size:0.85rem;" onclick="shareViaKakao()">
+              <span style="font-size:1.15rem;">💬</span> 카카오톡으로 보내기
+            </button>
+            
+            <!-- 문자 메시지(SMS) 전송 -->
+            <button class="control-btn" style="background:#10b981; color:#ffffff; font-weight:700; border:none; display:flex; align-items:center; justify-content:center; gap:8px; padding:12px; border-radius:10px; font-size:0.85rem;" onclick="shareViaSMS()">
+              <span style="font-size:1.15rem;">✉️</span> 문자 메시지(SMS)로 보내기
+            </button>
+            
+            <!-- 초대 문구 + 링크 복사 -->
+            <button class="control-btn" style="background:rgba(0, 242, 254, 0.15); color:var(--accent-cyan); border:1px solid rgba(0, 242, 254, 0.4); font-weight:700; display:flex; align-items:center; justify-content:center; gap:8px; padding:12px; border-radius:10px; font-size:0.85rem;" onclick="copyAppShareText()">
+              <span style="font-size:1.15rem;">📋</span> 초대 문구 + 링크 복사하기
+            </button>
+          </div>
+
+          <!-- QR 코드 안내 -->
+          <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); margin-bottom:14px;">
+            <p style="font-size:0.75rem; color:#94a3b8; margin-bottom:8px; font-weight:600;">📷 스마트폰 카메라로 QR 코드를 비춰보세요</p>
+            <div id="qrCodeContainer" style="display:flex; justify-content:center; align-items:center; min-height:140px;">
+              <img id="qrCodeImg" src="" alt="앱 바로열기 QR코드" style="width:140px; height:140px; border-radius:8px; background:#fff; padding:6px; display:none;" />
+              <div id="qrPlaceholder" style="font-size:0.72rem; color:var(--text-secondary); padding:20px 0;">QR 코드 불러오는 중...</div>
+            </div>
+          </div>
+
+          <button class="control-btn" style="width:100%;" onclick="closeShareModal()">닫기</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    // Live Clock in status bar
+    function updateClock() {
+      const d = new Date();
+      const h = String(d.getHours()).padStart(2, '0');
+      const m = String(d.getMinutes()).padStart(2, '0');
+      const clockEl = document.getElementById('liveClock');
+      if (clockEl) clockEl.textContent = `${h}:${m}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then((reg) => console.log('⚡ PWA Service Worker Registered:', reg.scope))
+          .catch((err) => console.warn('PWA Service Worker registration failed:', err));
+      });
+    }
+
+    // 모달 제어
+    function openShareModal() {
+      if (typeof sounds !== 'undefined' && sounds.playTap) sounds.playTap();
+      const modal = document.getElementById('shareModal');
+      if (modal) modal.classList.add('open');
+      
+      const notice = document.getElementById('fileProtocolNotice');
+      if (notice) {
+        notice.style.display = (window.location.protocol === 'file:') ? 'block' : 'none';
+      }
+
+      const currentUrl = window.location.href;
+      const qrImg = document.getElementById('qrCodeImg');
+      const qrPlaceholder = document.getElementById('qrPlaceholder');
+      if (qrImg && currentUrl) {
+        qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(currentUrl)}`;
+        qrImg.onload = () => {
+          qrImg.style.display = 'block';
+          if (qrPlaceholder) qrPlaceholder.style.display = 'none';
+        };
+      }
+    }
+
+    function closeShareModal() {
+      if (typeof sounds !== 'undefined' && sounds.playTap) sounds.playTap();
+      const modal = document.getElementById('shareModal');
+      if (modal) modal.classList.remove('open');
+    }
+
+    // 카카오톡으로 보내기
+    function shareViaKakao() {
+      if (typeof sounds !== 'undefined' && sounds.playTap) sounds.playTap();
+      const currentUrl = window.location.href;
+      const shareTitle = '⚡ Life Energy Cloud - 라이프 에너지 관리 앱';
+      const shareText = `${shareTitle}\n\n아래 주소를 누르시면 앱이 즉시 실행됩니다:\n👉 ${currentUrl}\n\n(모바일에서 열고 홈 화면에 추가하면 진짜 앱으로 설치됩니다!)`;
+
+      if (navigator.share) {
+        navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: currentUrl
+        }).catch(() => {});
+      } else {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(shareText).then(() => {
+            alert('💬 [카카오톡 공유 안내]\n\n앱 초대 문구와 주소가 클립보드에 복사되었습니다!\n카카오톡 대화방을 열고 [붙여넣기]하여 친구나 가족에게 전송하세요.');
+          });
+        } else {
+          prompt('아래 문구를 복사하여 카카오톡에 붙여넣으세요:', shareText);
+        }
+      }
+    }
+
+    // 문자 메시지(SMS)로 보내기
+    function shareViaSMS() {
+      if (typeof sounds !== 'undefined' && sounds.playTap) sounds.playTap();
+      const currentUrl = window.location.href;
+      const shareText = `[Life Energy Cloud 앱 초대]\n아래 링크를 누르면 즉시 앱이 열립니다:\n${currentUrl}`;
+      
+      // 모바일 기기 SMS 링크 실행
+      window.location.href = `sms:?body=${encodeURIComponent(shareText)}`;
+      
+      // 클립보드 복사 폴백
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shareText).then(() => {
+          console.log('SMS text copied to clipboard');
+        });
+      }
+    }
+
+    // 초대 문구 + 링크 복사
+    function copyAppShareText() {
+      if (typeof sounds !== 'undefined' && sounds.playTap) sounds.playTap();
+      const currentUrl = window.location.href;
+      const shareText = `⚡ [Life Energy Cloud - 라이프 에너지 자율 관리 시스템]\n\n아래 주소를 클릭하시면 앱이 즉시 실행됩니다:\n👉 ${currentUrl}\n\n(스마트폰에서 열고 '홈 화면에 추가'를 누르면 진짜 앱으로 설치됩니다!)`;
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shareText).then(() => {
+          alert('📋 [초대 문구 및 주소 복사 완료!]\n\n클립보드에 복사되었습니다.\n카카오톡이나 문자 메시지에 붙여넣어 바로 보내세요!');
+        }).catch(() => {
+          prompt('아래 문구를 복사하여 보내세요:', shareText);
+        });
+      } else {
+        prompt('아래 문구를 복사하여 보내세요:', shareText);
+      }
+    }
+
+    // 일반 주소 복사
+    function copyAppUrl() {
+      openShareModal();
+    }
+  </script>
+</body>
+</html>
