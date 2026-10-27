@@ -1,0 +1,42 @@
+{
+  "componentName": "DataCard",
+  "description": "핵심 지표를 표시하는 컴포넌트. Deep Red와 Cyan Blue 상태에 따라 폰트 무게 및 배경색이 변해야 함.",
+  "variants": [
+    {"state": "DANGER/DEEP_RED", "color": "#9F222B", "icon": "⚠️", "label": "위험 지표 (Risk)", "description": "측정된 위험 수준을 시각화. 폰트 무게: Bold"},
+    {"state": "CONTROL/CYAN_BLUE", "color": "#00A8E0", "icon": "✅", "label": "통제 지표 (Control)", "description": "시스템이 성공적으로 감지 및 통제한 핵심 값. 폰트 무게: Medium"}
+  ],
+  "componentName": "AuditLogEntry",
+  "description": "필터링 과정에서 처리되는 원시 데이터 기록. 필터가 작동할 때만 표시되어야 함.",
+  "variants": [
+    {"state": "RAW_STREAMING", "color": "#1A1A2E", "pattern": "Glitch/Noise"},
+    {"state": "ARCHIVED/CLEANSED", "color": "#00A8E0", "pattern": "Structured Log"}
+  ]
+}
+[근거: Designer 검증된 지식 / CEO 지시]
+
+### ⚙️ 3. 애니메이션 로직 명세서 (Animation Specification)
+
+가장 핵심인 '정보 필터링 엔진'의 동작 원리와 프레임워크 요구사항을 기술 문서화했습니다. 개발팀이 이 스펙에 따라 모션 컴포넌트를 제작할 수 있도록 합니다.
+
+<create_file path="c:\Users\bsg12\OneDrive\바탕 화면\life_energy_cloud\assets\design_system\Animation_Spec_FilteringEngine_v1.md">
+# ⚙️ PoC 진단 페이지: 정보 필터링 엔진 (The Information Filtering Engine) 기술 명세서
+
+## 🎯 목표
+Deep Red의 '무질서한 데이터 과부하' 상태를 Cyan Blue의 '구조화된 통제 대시보드'로 전환하는 과정에서, 사용자가 **정보가 정제되는 경험**을 할 수 있도록 설계한다. (감성적 여정: 혼란 $\to$ 명료)
+
+## ⏱️ 타이밍 및 단계별 로직
+1.  **Phase 0: Initial State (T=0s): Deep Red Chaos.**
+    *   *비주얼:* 배경에 무작위로 움직이는 오류 로그(`AuditLogEntry`)가 가득하며, 색상은 `#9F222B`를 기반으로 한다.
+    *   *사운드:* 불규칙하고 날카로운 고주파 경고음(High-frequency Alarm)이 지속적으로 재생된다.
+2.  **Phase 1: Trigger (T=2s): Filter Activation.**
+    *   사용자가 진단 시작 버튼을 클릭하는 순간, 화면 전체에 `[SYSTEM FILTERING GRID]` 오버레이가 **빠른 속도로(0.5s)** 나타난다. 이 그리드는 모든 정보를 포획하고 정렬하려는 시각적 장치 역할을 한다.
+3.  **Phase 2: Filtering Process (T=2s ~ T=5s): The Cleansing.**
+    *   이 구간은 **모션 컴포넌트의 핵심**이다. 오버레이 그리드가 화면을 가로지르며(좌 $\to$ 우), 무질서한 Deep Red 데이터 로그를 스캔한다.
+    *   데이터가 스캔되는 순간, 해당 정보는 임시적으로 투명해지거나 (정보 삭제 효과) 혹은 구조화된 작은 박스(`[ARCHIVED]`) 형태로 재배치된다. 이 과정이 3~4회 반복되면서 '정제'의 느낌을 준다.
+    *   **기술 스펙:** 그리드 움직임은 규칙적이고 기계적인(Mechanical) 속도를 유지해야 한다. (지연/불규칙성 금지).
+    *   **사운드:** 경고음이 점차 낮아지고, 대신 틱-톡 거리는 정밀하고 일정한 간격의 '데이터 처리 사운드'가 주도적으로 재생된다.
+4.  **Phase 3: Final State (T=5s ~): Cyan Blue Control.**
+    *   필터링이 완료됨과 동시에 오버레이 그리드가 사라지고, 화면 전체가 `#00A8E0`의 깨끗한 배경으로 전환된다.
+    *   원래 Deep Red에 묻혀있던 핵심 KPI 데이터(예: '통제율', '규제 준수 점수')만 `DataCard` 컴포넌트를 통해 구조적으로, 그리고 선명하게 등장하며 최종 메시지를 전달한다.
+
+[근거: CEO 지시 / Designer 검증된 지식]

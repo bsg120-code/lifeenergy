@@ -1,0 +1,57 @@
+{
+  "version": "1.0",
+  "description": "Deep Red to Cyan Blue Transition Engine (T+0:35 to T+0:42) Core Components.",
+  "master_specs": {
+    "duration_range": "7 seconds total",
+    "transition_window": "T+0:38 - T+0:41 (Core Filtering)",
+    "color_palette": {
+      "deep_red": "#9F222B",
+      "cyan_blue": "#00A8E0",
+      "accent_warning": "#FFC300",
+      "base_authority": "#1A1A2E"
+    },
+    "sound_design": {
+      "deep_red_phase": "High-frequency, irregular noise/alarm (Chaos)",
+      "transition_phase": "Frequency cut-off followed by a brief digital 'whirring' sound",
+      "cyan_blue_phase": "Stable, low-frequency synth chord with clean UI clicks (Order)"
+    }
+  },
+  "components": [
+    {
+      "id": "COMP_A_METRIC",
+      "name": "리스크 데이터 집계 -> 핵심 통제 지표",
+      "type": "Data Visualization Module",
+      "export_format": ["Web (SVG/Lottie)", "Video (ProRes)"],
+      "logic_trigger": {
+        "input": "Deep Red: High Volatility Data Feed",
+        "process": "FilterFrequency(P_critical=0.85)",
+        "output": "CleanLineGraph(CyanBlue)"
+      },
+      "assets": ["metric_chaos_loop.lottie", "metric_filter_transition.mov", "metric_final_kpi.svg"]
+    },
+    {
+      "id": "COMP_B_AUDIT",
+      "name": "실패 로그 스트림 -> 감사 추적 원장",
+      "type": "Textual Data Flow Module",
+      "export_format": ["Web (Canvas/JS)", "Video (ProRes)"],
+      "logic_trigger": {
+        "input": "Deep Red: Streaming Error Codes",
+        "process": "KeywordExtraction(Keywords=['Audit', 'Success'] ) & CleansingPass",
+        "output": "TimeStampedLedger(CyanBlue)"
+      },
+      "assets": ["log_stream_noise.mov", "log_cleanser_filter.lottie", "log_audit_timeline.svg"]
+    },
+    {
+      "id": "COMP_C_PATH",
+      "name": "원인-결과 네트워크 -> 통제 로직 플로우",
+      "type": "Diagrammatic Flow Module",
+      "export_format": ["Web (SVG/Lottie)", "Video (ProRes)"],
+      "logic_trigger": {
+        "input": "Deep Red: High Entropy Network Graph",
+        "process": "CriticalPathAnalysis(Threshold=0.7)",
+        "output": "LinearFlowDiagram(CyanBlue)"
+      },
+      "assets": ["network_spaghetti_red.mov", "path_pruning_filter.lottie", "flow_final_mechanism.svg"]
+    }
+  ]
+}
